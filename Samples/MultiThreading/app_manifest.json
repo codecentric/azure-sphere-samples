@@ -1,0 +1,18 @@
+{
+  "SchemaVersion": 1,
+  "Name": "Blink",
+  "ComponentId": "42316ceb-f45b-4275-a663-33cf1e34d2a8",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [],
+  "Capabilities": {
+    "Gpio": [
+      "$TEMPLATE_LED_1_RED", "$TEMPLATE_LED_2_RED", "$TEMPLATE_LED_3_RED", "$TEMPLATE_LED_4_RED",
+      "$TEMPLATE_LED_1_GREEN", "$TEMPLATE_LED_2_GREEN", "$TEMPLATE_LED_3_GREEN", "$TEMPLATE_LED_4_GREEN",
+      "$TEMPLATE_LED_1_BLUE", "$TEMPLATE_LED_2_BLUE", "$TEMPLATE_LED_3_BLUE", "$TEMPLATE_LED_4_BLUE",
+      "$TEMPLATE_VIBRATION_MOTOR", "$TEMPLATE_4_DIGIT_DISPLAY_CLK", "$TEMPLATE_4_DIGIT_DISPLAY_DIO"
+    ],
+    "Uart": [ "$MT3620_RDB_HEADER2_ISU0_UART", "$MT3620_RDB_HEADER3_ISU3_UART" ],
+    "AllowedApplicationConnections": []
+  },
+  "ApplicationType": "Default"
+}
