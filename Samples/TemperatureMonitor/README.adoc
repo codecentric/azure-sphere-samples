@@ -1,5 +1,7 @@
 # Azure Sphere Temperature Monitor
 
+:imagesdir: ../../doc/images
+
 ## Project description
 
 The temperature sensor is queried periodically for the current temperature and humidity value.
@@ -7,9 +9,9 @@ The relay is switched on, if a temperature threshold is reached. This threshold 
 set by the rotary angle sensor. The default threshold can be set between 15°C and 25°C, but is
 configurable in `config.h`.
 
-The user buttons A and B can be used to increase and decrease the display contrast, respectivelly.
+The user buttons A and B can be used to increase and decrease the display contrast, respectively.
 
-The current state of the system is displayed n the lcd screen:
+The current state of the system is displayed on the lcd screen:
 
 * temperature
 * humidity
@@ -42,3 +44,10 @@ azsphere hardware-definition generate-header --input template_appliance.json
 ----
 
 This is only necessary in case the `template_appliance.json` is changed.
+
+## Pictures of the hardware setup
+
+image::azsphere_temperature_monitor2.jpg[System overview]
+image::azsphere_temperature_monitor4.jpg[Display]
+image::azsphere_temperature_monitor1.jpg[Connections on the shield]
+image::azsphere_temperature_monitor3.jpg[Connected peripherals]
