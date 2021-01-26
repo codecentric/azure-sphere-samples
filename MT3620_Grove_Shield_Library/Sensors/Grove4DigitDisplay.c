@@ -141,7 +141,7 @@ void Grove4DigitDisplay_DisplayOneSegmentRaw(void* inst, int bitAddr, int dispDa
 		segData = 0x00;
 		break;
 	default:
-		segData = dispData;
+		segData = (uint8_t)dispData;
 		if (_clockpoint)
 		{
 			segData |= 0x80;
