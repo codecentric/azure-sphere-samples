@@ -1,0 +1,36 @@
+{
+  "SchemaVersion": 1,
+  "Name": "TemperatureMonitor",
+  "ComponentId": "16cf357f-d34e-4e47-ac3b-37eeaef09c1a",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [],
+  "Capabilities": {
+    "Gpio": [
+      "$TEMPLATE_LED_1_RED",
+      "$TEMPLATE_LED_2_RED",
+      "$TEMPLATE_LED_3_RED",
+      "$TEMPLATE_LED_4_RED",
+      "$TEMPLATE_LED_1_GREEN",
+      "$TEMPLATE_LED_2_GREEN",
+      "$TEMPLATE_LED_3_GREEN",
+      "$TEMPLATE_LED_4_GREEN",
+      "$TEMPLATE_LED_1_BLUE",
+      "$TEMPLATE_LED_2_BLUE",
+      "$TEMPLATE_LED_3_BLUE",
+      "$TEMPLATE_LED_4_BLUE",
+      "$TEMPLATE_USER_BUTTON_A",
+      "$TEMPLATE_USER_BUTTON_B",
+      "$TEMPLATE_LED_BUTTON_SWITCH",
+      "$TEMPLATE_LED_BUTTON_BLUE_LED",
+      "$TEMPLATE_RELAY",
+      "$TEMPLATE_ANALOG_ALARM",
+      "$TEMPLATE_ANALOG_CONVERSION_START"
+    ],
+    "Uart": [
+      "$MT3620_RDB_HEADER2_ISU0_UART",
+      "$MT3620_RDB_HEADER3_ISU3_UART"
+    ],
+    "AllowedApplicationConnections": []
+  },
+  "ApplicationType": "Default"
+}
