@@ -19,11 +19,14 @@
 #include "gpio.h"
 #include "led.h"
 #include "vibrationMotor.h"
+#include "motorDriver.h"
 #include "exit.h"
 #include "logo.h"
-#include "sleep.h"
+#include "i2cScanner.h"
 
 #include <hw/template_appliance.h>
+
+#define delay(ms) usleep(ms * 1000)
 
 #define INITIAL_COUNTDOWN 10
 
@@ -39,6 +42,8 @@ static int vibrationMotor;
 static bool vibrationEnabled = false;
 static int vibrations = 0;
 
+static bool motorsEnabled = false;
+
 pthread_mutex_t mutex;
 
 static volatile sig_atomic_t terminationRequested = false;
@@ -51,6 +56,7 @@ static void TerminationHandler(int signalNumber)
 static void CountdownElapsed(void)
 {
     vibrationEnabled = true;
+    motorsEnabled = true;
 }
 
 static void MaxVibrationsReached(void)
@@ -68,7 +74,6 @@ static void ShowSplashScreen(void)
 static void *Blink(void *data)
 {
     int colorState = 0;
-    unsigned int wait = 100;
 
     while (!terminationRequested)
     {
@@ -84,27 +89,27 @@ static void *Blink(void *data)
         bool blue = colorState == 3 || colorState == 4 || colorState == 5;
 
         SetLedState(leds.one, red, green, blue);
-        Sleep(wait);
+        delay(100);
         SetLedState(leds.one, false, false, false);
 
         SetLedState(leds.two, red, green, blue);
-        Sleep(wait);
+        delay(100);
         SetLedState(leds.two, false, false, false);
 
         SetLedState(leds.three, red, green, blue);
-        Sleep(wait);
+        delay(100);
         SetLedState(leds.three, false, false, false);
 
         SetLedState(leds.four, red, green, blue);
-        Sleep(wait);
+        delay(100);
         SetLedState(leds.four, false, false, false);
 
         SetLedState(leds.three, red, green, blue);
-        Sleep(wait);
+        delay(100);
         SetLedState(leds.three, false, false, false);
 
         SetLedState(leds.two, red, green, blue);
-        Sleep(wait);
+        delay(100);
         SetLedState(leds.two, false, false, false);
 
         colorState = (colorState + 1) % 6;
@@ -150,7 +155,7 @@ static void *TempHumi(void *data)
         putString(text2);
         pthread_mutex_unlock(&mutex);
 
-        Sleep(100);
+        delay(100);
     }
 
     clearDisplay();
@@ -167,13 +172,13 @@ static void *Vibrate(void *data)
             if (vibrations < 3)
             {
                 Pulse(vibrationMotor, 200);
-                Sleep(100);
+                delay(100);
                 Pulse(vibrationMotor, 200);
-                Sleep(100);
+                delay(100);
                 Pulse(vibrationMotor, 200);
-                Sleep(100);
+                delay(100);
 
-                Sleep(500);
+                delay(500);
 
                 vibrations++;
             }
@@ -220,7 +225,7 @@ static void *DisplayDigits(void *data)
             Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 2, (seconds / 10) % 10);
             Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 3, seconds % 10);
 
-            Sleep(1000);
+            delay(1000);
 
             countdown--;
         }
@@ -238,16 +243,46 @@ static void *DisplayDigits(void *data)
                     Grove4DigitDisplay_DisplayOneSegmentRaw(digitsDisplay, 2, segmentsDigit3[step]);
                     Grove4DigitDisplay_DisplayOneSegmentRaw(digitsDisplay, 3, segmentsDigit4[step]);
 
-                    Sleep(100);
+                    delay(100);
                 }
             }
 
-            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 0, 13 /* d */);
-            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 1, 14 /* E */);
-            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 2, 10 /* A */);
-            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 3, 13 /* d */);
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 0, 13); // d
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 1, 14); // E
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 2, 10); // A
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 3, 13); // d
 
             CountdownElapsed();
+        }
+    }
+
+    return NULL;
+}
+
+static void *Drive(void *data)
+{
+    int speed = 50;
+    while (!terminationRequested)
+    {
+        if (motorsEnabled)
+        {
+            pthread_mutex_lock(&mutex);
+            SetMotorSpeeds(speed, speed);
+            pthread_mutex_unlock(&mutex);
+
+            delay(2000);
+
+            speed += 10;
+
+            if (speed > 100)
+            {
+                pthread_mutex_lock(&mutex);
+                StopMotor(MOTOR1);
+                StopMotor(MOTOR2);
+                pthread_mutex_unlock(&mutex);
+                speed = 50;
+                motorsEnabled = false;
+            }
         }
     }
 
@@ -262,12 +297,19 @@ static void InitPeripheralsAndHandlers(void)
     sigaction(SIGTERM, &action, NULL);
 
     GroveShield_Initialize(&i2cFd, 230400);
-    GroveOledDisplay_Init(i2cFd, SH1107G);
+
+#ifdef I2C_SCAN
+    i2cScanner(i2cScanner)
+#endif
+
+        GroveOledDisplay_Init(i2cFd, SH1107G);
     sht31 = GroveTempHumiSHT31_Open(i2cFd);
 
     vibrationMotor = OpenVibrationMotor(TEMPLATE_VIBRATION_MOTOR);
 
     digitsDisplay = Grove4DigitDisplay_Open(TEMPLATE_4_DIGIT_DISPLAY_CLK, TEMPLATE_4_DIGIT_DISPLAY_DIO);
+
+    InitMotor(i2cFd, 0x0f);
 
     OpenLeds(&leds);
 }
@@ -295,10 +337,14 @@ int main(void)
     pthread_t digitDisplayThread;
     pthread_create(&digitDisplayThread, NULL, DisplayDigits, (void *)NULL);
 
+    pthread_t motorThread;
+    pthread_create(&motorThread, NULL, Drive, (void *)NULL);
+
     pthread_join(blinkThread, NULL);
     pthread_join(tempHumiThread, NULL);
     pthread_join(contrastThread, NULL);
     pthread_join(digitDisplayThread, NULL);
+    pthread_join(motorThread, NULL);
 
     pthread_mutex_destroy(&mutex);
 
