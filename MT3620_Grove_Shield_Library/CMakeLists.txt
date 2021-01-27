@@ -36,6 +36,8 @@ set(Sensors
     "Sensors/GroveLEDButton.h"
     "Sensors/GroveLightSensor.c"
     "Sensors/GroveLightSensor.h"
+    "Sensors/GroveI2CMotorDriver.c"
+    "Sensors/GroveI2CMotorDriver.h"
     "Sensors/GroveOledDisplay96x96.c"
     "Sensors/GroveOledDisplay96x96.h"
     "Sensors/GroveRelay.c"

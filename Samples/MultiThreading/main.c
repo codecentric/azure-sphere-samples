@@ -16,10 +16,10 @@
 #include "../../MT3620_Grove_Shield_Library/Sensors/GroveOledDisplay96x96.h"
 #include "../../MT3620_Grove_Shield_Library/Sensors/GroveTempHumiSHT31.h"
 #include "../../MT3620_Grove_Shield_Library/Sensors/Grove4DigitDisplay.h"
+#include "../../MT3620_Grove_Shield_Library/Sensors/GroveI2CMotorDriver.h"
 #include "gpio.h"
 #include "led.h"
 #include "vibrationMotor.h"
-#include "motorDriver.h"
 #include "exit.h"
 #include "logo.h"
 #include "i2cScanner.h"
@@ -42,6 +42,7 @@ static int vibrationMotor;
 static bool vibrationEnabled = false;
 static int vibrations = 0;
 
+static void *motorDriver;
 static bool motorsEnabled = false;
 
 pthread_mutex_t mutex;
@@ -247,12 +248,21 @@ static void *DisplayDigits(void *data)
                 }
             }
 
-            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 0, 13); // d
-            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 1, 14); // E
-            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 2, 10); // A
-            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 3, 13); // d
-
             CountdownElapsed();
+
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 0, 15); // F
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 1, 14); // E
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 2, 14); // E
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 3, 13); // D
+            
+            delay(3000);
+
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 0, 12); // C
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 1, 10); // A
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 2, 15); // F
+            Grove4DigitDisplay_DisplayOneSegment(digitsDisplay, 3, 14); // E
+
+            delay(3000);
         }
     }
 
@@ -267,24 +277,27 @@ static void *Drive(void *data)
         if (motorsEnabled)
         {
             pthread_mutex_lock(&mutex);
-            SetMotorSpeeds(speed, speed);
+            GroveI2CMotorDriver_SetMotorSpeeds(motorDriver, speed, speed);
             pthread_mutex_unlock(&mutex);
 
-            delay(2000);
+            delay(1000);
 
             speed += 10;
 
             if (speed > 100)
             {
                 pthread_mutex_lock(&mutex);
-                StopMotor(MOTOR1);
-                StopMotor(MOTOR2);
+                GroveI2CMotorDriver_StopMotors(motorDriver);
                 pthread_mutex_unlock(&mutex);
                 speed = 50;
                 motorsEnabled = false;
             }
         }
     }
+
+    pthread_mutex_lock(&mutex);
+    GroveI2CMotorDriver_StopMotors(motorDriver);
+    pthread_mutex_unlock(&mutex);
 
     return NULL;
 }
@@ -309,7 +322,7 @@ static void InitPeripheralsAndHandlers(void)
 
     digitsDisplay = Grove4DigitDisplay_Open(TEMPLATE_4_DIGIT_DISPLAY_CLK, TEMPLATE_4_DIGIT_DISPLAY_DIO);
 
-    InitMotor(i2cFd, 0x0f);
+    motorDriver = GroveI2CMotorDriver_Open(i2cFd, DEFAULT_MOTOR_DRIVER_ADDRESS);
 
     OpenLeds(&leds);
 }

@@ -19,3 +19,11 @@ Additionally to `Grove4DigitDisplay_DisplayOneSegment` there is a `Grove4DigitDi
 #define SEGMENT_TOP_RIGHT 0b00000010
 #define SEGMENT_TOP 0b00000001
 ```
+
+## Grove I2C Motor Driver
+
+There is no support for the Grove I2C Motor Driver in the original MT3620 Grove Shield Library. This adaption adds support for the dual DC motor control (but not for stepper motors).
+
+See [the header file](./Sensors/GroveI2CMotorDriver.h) for an overview of all available functions.
+
+This code is inspired by the [Arduino driver for the Grove I2C Motor Driver v1.3](https://github.com/Seeed-Studio/Grove_I2C_Motor_Driver_v1_3).
