@@ -16,8 +16,7 @@
 #include <applibs/powermanagement.h>
 
 #include "led.h"
-
-#define delay(ms) usleep(ms * 1000)
+#include "sleep.h"
 
 static volatile sig_atomic_t terminationRequested = false;
 
@@ -26,31 +25,21 @@ static leds_t leds;
 static bool networkReady = false;
 static bool connectedToIoTHub = false;
 
-static void TerminationHandler(int signalNumber) {
+static void TerminationHandler(int signalNumber)
+{
   terminationRequested = true;
 }
 
-void NetworkLedUpdateHandler(void) {
+void NetworkLedUpdateHandler(void)
+{
   Networking_IsNetworkingReady(&networkReady);
 
-  !bNetworkReady ?
-  SetLedState(leds.wifi, true, false, false) :
-  !connectedToIoTHub ? SetLedState(leds.wifi,
-                                   false,
-                                   true,
-                                   false) : SetLedState(
-      leds.wifi,
-      false,
-      false,
-      true);
-  if (bNetworkReady) {
-    color = (connectedToIoTHub ? RgbLedUtility_Colors_Blue : RgbLedUtility_Colors_Green);
-  } else {
-    SetLedState(leds.wifi, true, false, false);
-  }
+  !networkReady ? SetLedState(leds.wifi, true, false, false) : !connectedToIoTHub ? SetLedState(leds.wifi, false, true, false)
+                                                                                  : SetLedState(leds.wifi, false, false, true);
 }
 
-static void InitPeripheralsAndHandlers(void) {
+static void InitPeripheralsAndHandlers(void)
+{
   struct sigaction action;
   memset(&action, 0, sizeof(struct sigaction));
   action.sa_handler = TerminationHandler;
@@ -59,7 +48,15 @@ static void InitPeripheralsAndHandlers(void) {
   OpenLeds(&leds);
 }
 
-int main(void) {
+int main(void)
+{
   InitPeripheralsAndHandlers();
+
+  while (true)
+  {
+    NetworkLedUpdateHandler();
+    Sleep(500);
+  }
+
   return 0;
 }

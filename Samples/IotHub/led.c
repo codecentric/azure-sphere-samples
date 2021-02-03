@@ -24,9 +24,9 @@ void OpenLeds(leds_t *leds)
     leds->four.green = OpenGPIO(TEMPLATE_LED_4_GREEN, LED_OFF);
     leds->four.blue = OpenGPIO(TEMPLATE_LED_4_BLUE, LED_OFF);
 
-    leds->wifi.red = OpenGPIO(TEMPLATE_LED_WIFI_RED, LED_OFF);
-    leds->wifi.green = OpenGPIO(TEMPLATE_LED_WIFI_GREEN, LED_OFF);
-    leds->wifi.blue = OpenGPIO(TEMPLATE_LED_WIFI_BLUE, LED_OFF);
+    leds->wifi.red = OpenGPIO(TEMPLATE_LED_NETWORKING_RED, LED_OFF);
+    leds->wifi.green = OpenGPIO(TEMPLATE_LED_NETWORKING_GREEN, LED_OFF);
+    leds->wifi.blue = OpenGPIO(TEMPLATE_LED_NETWORKING_BLUE, LED_OFF);
 
     leds->status.red = OpenGPIO(TEMPLATE_LED_STATUS_RED, LED_OFF);
     leds->status.green = OpenGPIO(TEMPLATE_LED_STATUS_GREEN, LED_OFF);
