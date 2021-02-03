@@ -7,5 +7,9 @@
         "AZURE_SPHERE_TARGET_API_SET": "latest-lts"
     },
     "cmake.configureOnOpen": true,
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "files.associations": {
+        "powermanagement.h": "c",
+        "utils.h": "c"
+    }
 }

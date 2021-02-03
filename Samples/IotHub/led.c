@@ -33,9 +33,39 @@ void OpenLeds(leds_t *leds)
     leds->status.blue = OpenGPIO(TEMPLATE_LED_STATUS_BLUE, LED_OFF);
 }
 
+void CloseLeds(leds_t *leds)
+{
+    SetLedState(leds->one, false, false, false);
+    SetLedState(leds->two, false, false, false);
+    SetLedState(leds->three, false, false, false);
+    SetLedState(leds->four, false, false, false);
+    SetLedState(leds->wifi, false, false, false);
+    SetLedState(leds->status, false, false, false);
+}
+
 void SetLedState(led_channels_t channel, bool red, bool green, bool blue)
 {
     GPIO_SetValue(channel.red, red ? LED_ON : LED_OFF);
     GPIO_SetValue(channel.green, green ? LED_ON : LED_OFF);
     GPIO_SetValue(channel.blue, blue ? LED_ON : LED_OFF);
+}
+
+bool GetLedRedState(led_channels_t channel)
+{
+    return ReadGPIO(channel.red) == LED_ON;
+}
+
+bool GetLedGreenState(led_channels_t channel)
+{
+    return ReadGPIO(channel.green) == LED_ON;
+}
+
+bool GetLedBlueState(led_channels_t channel)
+{
+    return ReadGPIO(channel.blue) == LED_ON;
+}
+
+bool GetLedFdState(int fd)
+{
+    return ReadGPIO(fd) == LED_ON;
 }

@@ -18,3 +18,18 @@ int OpenGPIO(int gpioId, GPIO_Value_Type initialValue)
     }
     return fd;
 }
+
+GPIO_Value_Type ReadGPIO(int gpioId)
+{
+    GPIO_Value_Type value;
+    int error = GPIO_GetValue(gpioId, &value);
+
+    if (error)
+    {
+        Log_Debug(
+            "Error reading value of GPIO: %s (%d)\n",
+            strerror(errno), errno);
+    }
+
+    return value;
+}

@@ -20,5 +20,11 @@ typedef struct leds
 } leds_t;
 
 void OpenLeds(leds_t *leds);
+void CloseLeds(leds_t *leds);
 
 void SetLedState(led_channels_t channel, bool red, bool green, bool blue);
+
+bool GetLedRedState(led_channels_t channel);
+bool GetLedGreenState(led_channels_t channel);
+bool GetLedBlueState(led_channels_t channel);
+bool GetLedFdState(int fd);
