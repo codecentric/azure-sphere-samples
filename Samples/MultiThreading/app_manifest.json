@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 1,
-  "Name": "Blink",
+  "Name": "MultiThreading",
   "ComponentId": "42316ceb-f45b-4275-a663-33cf1e34d2a8",
   "EntryPoint": "/bin/app",
   "CmdArgs": [],

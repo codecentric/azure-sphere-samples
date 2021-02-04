@@ -19,8 +19,8 @@
 #include "utils.h"
 #include "azure_iot_utilities.h"
 
-#include "led.h"
-#include "sleep.h"
+#include "../../Library/led.h"
+#include "../../Library/sleep.h"
 
 static volatile sig_atomic_t terminationRequested = false;
 

@@ -1,5 +1,5 @@
-#include "../../MT3620_Grove_Shield_Library/HAL/GroveI2C.h"
-#include "../../MT3620_Grove_Shield_Library/HAL/GroveUART.h"
+#include "../MT3620_Grove_Shield_Library/HAL/GroveI2C.h"
+#include "../MT3620_Grove_Shield_Library/HAL/GroveUART.h"
 
 #include <stdlib.h>
 #include <time.h>

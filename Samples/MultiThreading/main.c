@@ -12,20 +12,20 @@
 #include <applibs/gpio.h>
 #include <applibs/i2c.h>
 
+#include <hw/template_appliance.h>
+
 #include "../../MT3620_Grove_Shield_Library/Grove.h"
 #include "../../MT3620_Grove_Shield_Library/Sensors/GroveOledDisplay96x96.h"
 #include "../../MT3620_Grove_Shield_Library/Sensors/GroveTempHumiSHT31.h"
 #include "../../MT3620_Grove_Shield_Library/Sensors/Grove4DigitDisplay.h"
 #include "../../MT3620_Grove_Shield_Library/Sensors/GroveI2CMotorDriver.h"
 #include "../../MT3620_Grove_Shield_Library/Sensors/GroveVibrationMotor.h"
-#include "gpio.h"
-#include "led.h"
-#include "exit.h"
-#include "logo.h"
+#include "../../Library/exit.h"
+#include "../../Library/gpio.h"
+#include "../../Library/led.h"
 #include "i2cScanner.h"
+#include "logo.h"
 #include "state.h"
-
-#include <hw/template_appliance.h>
 
 #define delay(ms) usleep(ms * 1000)
 
