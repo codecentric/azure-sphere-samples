@@ -15,10 +15,10 @@
 #include <applibs/wificonfig.h>
 #include <applibs/powermanagement.h>
 
-#include "parson.h"
 #include "utils.h"
-#include "azure_iot_utilities.h"
 
+#include "../../Library/parson.h"
+#include "../../Library/azure_iot_utilities.h"
 #include "../../Library/led.h"
 #include "../../Library/sleep.h"
 

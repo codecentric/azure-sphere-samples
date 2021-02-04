@@ -5,13 +5,17 @@ PROJECT(Library C)
 # Source groups
 ################################################################################
 set(no_group_source_files
+    "exit.h"
     "gpio.c"
     "gpio.h"
     "led.c"
     "led.h"
     "sleep.c"
     "sleep.h"
-    "exit.h"
+    "parson.c"
+    "parson.h"
+    "azure_iot_utilities.c"
+    "azure_iot_utilities.h"
 )
 source_group("" FILES ${no_group_source_files})
 
@@ -31,8 +35,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_GLOBAL_KEYWORD "AzureSphere"
 )
 
-
-target_link_libraries (${PROJECT_NAME} applibs pthread gcc_s c)
+target_link_libraries (${PROJECT_NAME} applibs pthread gcc_s c azureiot)
 azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "template_appliance.json")
 
 ################################################################################
