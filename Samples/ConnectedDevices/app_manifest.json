@@ -1,0 +1,34 @@
+{
+  "SchemaVersion": 1,
+  "Name": "IoTHub",
+  "ComponentId": "42316ceb-f45b-4275-a663-33cf1e34d2a8",
+  "EntryPoint": "/bin/app",
+  "Capabilities": {
+    "Gpio": [
+      "$TEMPLATE_LED_1_RED",
+      "$TEMPLATE_LED_2_RED",
+      "$TEMPLATE_LED_3_RED",
+      "$TEMPLATE_LED_4_RED",
+      "$TEMPLATE_LED_1_GREEN",
+      "$TEMPLATE_LED_2_GREEN",
+      "$TEMPLATE_LED_3_GREEN",
+      "$TEMPLATE_LED_4_GREEN",
+      "$TEMPLATE_LED_1_BLUE",
+      "$TEMPLATE_LED_2_BLUE",
+      "$TEMPLATE_LED_3_BLUE",
+      "$TEMPLATE_LED_4_BLUE",
+      "$TEMPLATE_LED_NETWORKING_RED",
+      "$TEMPLATE_LED_NETWORKING_GREEN",
+      "$TEMPLATE_LED_NETWORKING_BLUE",
+      "$TEMPLATE_LED_STATUS_RED",
+      "$TEMPLATE_LED_STATUS_GREEN",
+      "$TEMPLATE_LED_STATUS_BLUE"
+    ],
+    "Uart": [ "$MT3620_RDB_HEADER2_ISU0_UART", "$MT3620_RDB_HEADER3_ISU3_UART" ],
+    "WifiConfig": true,
+    "AllowedConnections": [ "global.azure-devices-provisioning.net", "azure-sphere-test.azure-devices.net" ],
+    "DeviceAuthentication": "9efedc9f-ffd9-467e-8d47-1c43d68cffc5"
+  },
+  "ApplicationType": "Default",
+  "CmdArgs": [ "0ne001E1902" ]
+}

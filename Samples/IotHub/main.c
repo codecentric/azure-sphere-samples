@@ -21,6 +21,7 @@
 #include "../../Library/azure_iot_utilities.h"
 #include "../../Library/led.h"
 #include "../../Library/sleep.h"
+#include "../../Library/exit.h"
 
 static volatile sig_atomic_t terminationRequested = false;
 
@@ -209,7 +210,7 @@ static void InitIotHub(const char *dpsScopeId)
   if (!AzureIoT_Initialize())
   {
     Log_Debug("ERROR: Cannot initialize Azure IoT Hub SDK.\n");
-    exit(-1);
+    exit(ExitCode_Initialization_Failed);
   }
 
   AzureIoT_SetMessageReceivedCallback(&IoTHubMessageReceiveHandler);
@@ -249,7 +250,7 @@ int main(int argc, char *argv[])
   if (argc < 2)
   {
     Log_Debug("ERROR: Please specify DPS scope id in app_manifest.json.\n");
-    exit(-1);
+    exit(ExitCode_Initialization_Failed);
   }
 
   InitIotHub(argv[1]);
@@ -273,5 +274,5 @@ int main(int argc, char *argv[])
     PowerManagement_ForceSystemReboot();
   }
 
-  return 0;
+  return ExitCode_Success;
 }

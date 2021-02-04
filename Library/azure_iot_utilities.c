@@ -826,7 +826,7 @@ static void twinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned ch
                          size_t payLoadSize, void *userContextCallback)
 {
     if (fnTwinUpdateHandler == NULL) {
-        LogMessage("WARNING: Received device twin update but no handler available.");
+        LogMessage("WARNING: Received device twin update but no handler available.\n");
         return;
     }
 

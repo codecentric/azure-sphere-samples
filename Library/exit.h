@@ -9,5 +9,7 @@ typedef enum
 {
     ExitCode_Success = 0,
 
-    ExitCode_Main_Led = 1
+    ExitCode_Main_Led = 1,
+
+    ExitCode_Initialization_Failed = -1
 } ExitCode;
