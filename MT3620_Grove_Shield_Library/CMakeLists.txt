@@ -48,6 +48,8 @@ set(Sensors
     "Sensors/GroveTempHumiBaroBME280.h"
     "Sensors/GroveTempHumiSHT31.c"
     "Sensors/GroveTempHumiSHT31.h"
+    "Sensors/GroveVibrationMotor.c"
+    "Sensors/GroveVibrationMotor.h"
 )
 source_group("Sensors" FILES ${Sensors})
 
