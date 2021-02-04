@@ -34,3 +34,14 @@ The source code and an extended description of the example can be found in the f
 ## Multi-Threading
 
 Uses POSIX threads instead of event polling.
+
+The source code and an extended description of the example can be found in the folder 
+[Samples/MultiThreading](Samples/MultiThreading/).
+
+## Azure IoT Hub
+
+The example shows how to connect to the Azure IoT Hub and control the LEDs of the MT3620 Dev Kit via the IoT Hub Device Twin.
+It also shows the usage of a direct message to restart the device and how to react to general messages.
+
+The source code and an extended description of the example can be found in the folder 
+[Samples/IotHub](Samples/IotHub/).
