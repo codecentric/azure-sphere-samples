@@ -1,7 +1,7 @@
 {
   "SchemaVersion": 1,
-  "Name": "IoTHub",
-  "ComponentId": "42316ceb-f45b-4275-a663-33cf1e34d2a8",
+  "Name": "IoTHubD2D",
+  "ComponentId": "a6efc14f-1cf1-49b7-ab7d-37f533ed77eb",
   "EntryPoint": "/bin/app",
   "Capabilities": {
     "Gpio": [

@@ -3,3 +3,4 @@ out/
 CMakeCache.txt
 CMakeFiles/
 build/
+Samples/IotHub/.DS_Store

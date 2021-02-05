@@ -98,6 +98,11 @@ void SetLedState(led_channels_t channel, bool red, bool green, bool blue)
     GPIO_SetValue(channel.blue, blue ? LED_ON : LED_OFF);
 }
 
+void SetLedChannelFdState(int channelFd, bool state) 
+{
+    GPIO_SetValue(channelFd, state ? LED_ON : LED_OFF);
+}
+
 bool GetLedRedState(led_channels_t channel)
 {
     return ReadGPIO(channel.red) == LED_ON;

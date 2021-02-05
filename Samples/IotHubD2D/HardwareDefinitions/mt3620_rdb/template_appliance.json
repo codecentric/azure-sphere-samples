@@ -1,0 +1,40 @@
+{
+    "Metadata": {
+        "Type": "Azure Sphere Hardware Definition",
+        "Version": 1
+    },
+    "Description":
+    {
+        "Name": "Template hardware abstraction for MT3620 RDB",
+        "MainCoreHeaderFileTopContent": [
+            "/* Copyright (c) codecentric AG. All rights reserved.",
+            "   Licensed under the MIT License. */"
+        ]
+    },
+    "Imports" : [ {"Path": "mt3620_rdb.json"} ],
+    "Peripherals": [
+        {"Name": "TEMPLATE_LED_1_RED", "Type": "Gpio", "Mapping": "MT3620_RDB_LED1_RED", "Comment": "MT3620 RDB: LED 1 (red channel)"},
+        {"Name": "TEMPLATE_LED_2_RED", "Type": "Gpio", "Mapping": "MT3620_RDB_LED2_RED", "Comment": "MT3620 RDB: LED 2 (red channel)"},
+        {"Name": "TEMPLATE_LED_3_RED", "Type": "Gpio", "Mapping": "MT3620_RDB_LED3_RED", "Comment": "MT3620 RDB: LED 3 (red channel)"},
+        {"Name": "TEMPLATE_LED_4_RED", "Type": "Gpio", "Mapping": "MT3620_RDB_LED4_RED", "Comment": "MT3620 RDB: LED 4 (red channel)"},
+        {"Name": "TEMPLATE_LED_1_GREEN", "Type": "Gpio", "Mapping": "MT3620_RDB_LED1_GREEN", "Comment": "MT3620 RDB: LED 1 (green channel)"},
+        {"Name": "TEMPLATE_LED_2_GREEN", "Type": "Gpio", "Mapping": "MT3620_RDB_LED2_GREEN", "Comment": "MT3620 RDB: LED 2 (green channel)"},
+        {"Name": "TEMPLATE_LED_3_GREEN", "Type": "Gpio", "Mapping": "MT3620_RDB_LED3_GREEN", "Comment": "MT3620 RDB: LED 3 (green channel)"},
+        {"Name": "TEMPLATE_LED_4_GREEN", "Type": "Gpio", "Mapping": "MT3620_RDB_LED4_GREEN", "Comment": "MT3620 RDB: LED 4 (green channel)"},
+        {"Name": "TEMPLATE_LED_1_BLUE", "Type": "Gpio", "Mapping": "MT3620_RDB_LED1_BLUE", "Comment": "MT3620 RDB: LED 1 (blue channel)"},
+        {"Name": "TEMPLATE_LED_2_BLUE", "Type": "Gpio", "Mapping": "MT3620_RDB_LED2_BLUE", "Comment": "MT3620 RDB: LED 2 (blue channel)"},
+        {"Name": "TEMPLATE_LED_3_BLUE", "Type": "Gpio", "Mapping": "MT3620_RDB_LED3_BLUE", "Comment": "MT3620 RDB: LED 3 (blue channel)"},
+        {"Name": "TEMPLATE_LED_4_BLUE", "Type": "Gpio", "Mapping": "MT3620_RDB_LED4_BLUE", "Comment": "MT3620 RDB: LED 4 (blue channel)"},
+        {"Name": "TEMPLATE_LED_NETWORKING_RED", "Type": "Gpio", "Mapping": "MT3620_RDB_NETWORKING_LED_RED", "Comment": "MT3620 RDB: Networking LED (red channel)"},
+        {"Name": "TEMPLATE_LED_NETWORKING_GREEN", "Type": "Gpio", "Mapping": "MT3620_RDB_NETWORKING_LED_GREEN", "Comment": "MT3620 RDB: Networking LED (green channel)"},
+        {"Name": "TEMPLATE_LED_NETWORKING_BLUE", "Type": "Gpio", "Mapping": "MT3620_RDB_NETWORKING_LED_BLUE", "Comment": "MT3620 RDB: Networking LED (blue channel)"},
+        {"Name": "TEMPLATE_LED_STATUS_RED", "Type": "Gpio", "Mapping": "MT3620_RDB_STATUS_LED_RED", "Comment": "MT3620 RDB: Networking LED (red channel)"},
+        {"Name": "TEMPLATE_LED_STATUS_GREEN", "Type": "Gpio", "Mapping": "MT3620_RDB_STATUS_LED_GREEN", "Comment": "MT3620 RDB: Networking LED (green channel)"},
+        {"Name": "TEMPLATE_LED_STATUS_BLUE", "Type": "Gpio", "Mapping": "MT3620_RDB_STATUS_LED_BLUE", "Comment": "MT3620 RDB: Networking LED (blue channel)"},
+        {"Name": "TEMPLATE_BUTTON_A", "Type": "Gpio", "Mapping": "MT3620_RDB_BUTTON_A", "Comment": "MT3620 RDB: Button A"},
+        {"Name": "TEMPLATE_BUTTON_B", "Type": "Gpio", "Mapping": "MT3620_RDB_BUTTON_B", "Comment": "MT3620 RDB: Button B"},
+        {"Name": "TEMPLATE_VIBRATION_MOTOR", "Type": "Gpio", "Mapping": "MT3620_RDB_HEADER1_PIN4_GPIO", "Comment": "MT3620 RDB: GPIO0"},
+        {"Name": "TEMPLATE_4_DIGIT_DISPLAY_CLK", "Type": "Gpio", "Mapping": "MT3620_RDB_HEADER1_PIN12_GPIO", "Comment": "MT3620 RDB: GPIO4"},
+        {"Name": "TEMPLATE_4_DIGIT_DISPLAY_DIO", "Type": "Gpio", "Mapping": "MT3620_RDB_HEADER2_PIN4_GPIO", "Comment": "MT3620 RDB: GPIO5"}
+    ]
+}

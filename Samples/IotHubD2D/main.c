@@ -17,15 +17,19 @@
 
 #include "utils.h"
 
+#include "../../MT3620_Grove_Shield_Library/Grove.h"
+#include "../../MT3620_Grove_Shield_Library/Sensors/GroveOledDisplay96x96.h"
+
 #include "../../Library/parson.h"
 #include "../../Library/azure_iot_utilities.h"
 #include "../../Library/led.h"
 #include "../../Library/sleep.h"
 
+// #define MASTER_DEVICE
+
 static volatile sig_atomic_t terminationRequested = false;
 
-static int rebootDeviceDelay = -1;
-
+static int i2cFd;
 static leds_t leds;
 
 static bool networkReady = false;
@@ -33,38 +37,26 @@ static bool connectedToIoTHub = false;
 
 static const char *pstrConnectionStatus = "Application started";
 
-HTTP_STATUS_CODE RebootMethod(JSON_Value *jsonParameters, JSON_Value **jsonResponseAddress)
+#ifdef MASTER_DEVICE
+static void ReportConnectedDevices(int connectedDevices)
 {
-  Log_Debug("[RebootMethod]: Invoked.\n");
-
-  HTTP_STATUS_CODE result = HTTP_BAD_REQUEST;
-  JSON_Value *jsonResponse = json_value_init_object();
-  JSON_Object *jsonObject = json_value_get_object(jsonResponse);
-
-  if (jsonParameters != NULL)
+  if (connectedToIoTHub)
   {
-    JSON_Object *jsonRootObject = json_value_get_object(jsonParameters);
-    rebootDeviceDelay = (int) json_object_dotget_number(jsonRootObject, "delay");
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *root_object = json_value_get_object(root_value);
 
-    if (rebootDeviceDelay > 0)
-    {
-      Log_Debug("[RebootMethod]: rebooting device in %d seconds.\n", rebootDeviceDelay);
-      json_object_set_boolean(jsonObject, "success", true);
-      result = HTTP_OK;
-    }
-    else
-    {
-      Log_Debug("[RebootMethod]: not rebooting device because no delay was given.\n");
-      json_object_set_boolean(jsonObject, "success", false);
-    }
+    json_object_set_boolean(root_object, "connectedDevices", connectedDevices);
+
+    AzureIoT_TwinReportStateJson(root_value);
+
+    json_value_free(root_value);
   }
-
-  *jsonResponseAddress = jsonResponse;
-  return result;
+  else
+  {
+    Log_Debug("[ReportLedStates] not connected to IoT Hub: no led states reported.\n");
+  }
 }
-
-static const MethodRegistration RebootDeviceMethodHandler =
-    {.MethodName = "rebootMethod", .MethodHandler = &RebootMethod};
+#endif
 
 static void ReportLedStates(void)
 {
@@ -99,13 +91,6 @@ static void ReportLedStates(void)
   }
 }
 
-static void SetLedStateReported(led_channels_t channel, bool red, bool green, bool blue)
-{
-  SetLedState(channel, red, green, blue);
-  ReportLedStates();
-}
-
-
 static void SendEventMessage(const char *cstrEvent, const char *cstrMessage)
 {
   if (connectedToIoTHub)
@@ -139,48 +124,41 @@ static void IoTHubConnectionStatusUpdateHandler(bool connected, const char *stat
   }
 }
 
-static void IoTHubMessageReceiveHandler(const char *messageBody)
-{
-  Log_Debug("[IoTHubMessageReceived]: %s\n", messageBody);
-  SetLedStateReported(leds.one, GetLedRedState(leds.one), false, false);
+static void ShowDevicesOnScreen(int connectedDevices) {
+  clearDisplay();
+  setNormalDisplay();
+  setVerticalMode();
+
+  setTextXY(1, 0);
+  putString("Master Node");
+  
+  setTextXY(3, 0);
+  putString("Devices: ");
+  putNumber(connectedDevices);
 }
 
 static void DeviceTwinUpdateHandler(JSON_Object *desiredProperties)
 {
   Log_Debug("[IoTHubDeviceTwinUpdateReceived]: %s\n");
 
-  bool led1Red = GetBooleanValue(desiredProperties, "leds.one.red", Get);
-  bool led1Green = GetBooleanValue(desiredProperties, "leds.one.green", false);
-  bool led1Blue = GetBooleanValue(desiredProperties, "leds.one.blue", false);
-
-  bool led2Red = GetBooleanValue(desiredProperties, "leds.two.red", false);
-  bool led2Green = GetBooleanValue(desiredProperties, "leds.two.green", false);
-  bool led2Blue = GetBooleanValue(desiredProperties, "leds.two.blue", false);
-
-  bool led3Red = GetBooleanValue(desiredProperties, "leds.three.red", false);
-  bool led3Green = GetBooleanValue(desiredProperties, "leds.three.green", false);
-  bool led3Blue = GetBooleanValue(desiredProperties, "leds.three.blue", false);
-
-  bool led4Red = GetBooleanValue(desiredProperties, "leds.four.red", false);
-  bool led4Green = GetBooleanValue(desiredProperties, "leds.four.green", false);
-  bool led4Blue = GetBooleanValue(desiredProperties, "leds.four.blue", false);
-
-  bool ledWifiRed = GetBooleanValue(desiredProperties, "leds.wifi.red", false);
-  bool ledWifiGreen = GetBooleanValue(desiredProperties, "leds.wifi.green", false);
-  bool ledWifiBlue = GetBooleanValue(desiredProperties, "leds.wifi.blue", false);
-
-  bool ledStatusRed = GetBooleanValue(desiredProperties, "leds.status.red", false);
-  bool ledStatusGreen = GetBooleanValue(desiredProperties, "leds.status.green", false);
-  bool ledStatusBlue = GetBooleanValue(desiredProperties, "leds.status.blue", false);
-
-  SetLedState(leds.one, led1Red, led1Green, led1Blue);
-  SetLedState(leds.two, led2Red, led2Green, led2Blue);
-  SetLedState(leds.three, led3Red, led3Green, led3Blue);
-  SetLedState(leds.four, led4Red, led4Green, led4Blue);
-  SetLedState(leds.wifi, ledWifiRed, ledWifiGreen, ledWifiBlue);
-  SetLedState(leds.status, ledStatusRed, ledStatusGreen, ledStatusBlue);
+  SetLedIfExistsInJson(desiredProperties, leds.one, "one");
+  SetLedIfExistsInJson(desiredProperties, leds.two, "two");
+  SetLedIfExistsInJson(desiredProperties, leds.three, "three");
+  SetLedIfExistsInJson(desiredProperties, leds.four, "four");
+  SetLedIfExistsInJson(desiredProperties, leds.wifi, "wifi");
+  SetLedIfExistsInJson(desiredProperties, leds.status, "status");
 
   ReportLedStates();
+
+#ifdef MASTER_DEVICE
+  if(json_object_dotget_value(desiredProperties, "connectedDevices") && i2cFd >= 0) 
+  {
+    int connectedDevices = (int) json_object_dotget_number(desiredProperties, "connectedDevices");
+    ShowDevicesOnScreen(connectedDevices);
+
+    ReportConnectedDevices(connectedDevices);
+  }
+#endif
 }
 
 static void AzureIoTPeriodicHandler(void)
@@ -212,9 +190,7 @@ static void InitIotHub(const char *dpsScopeId)
     exit(-1);
   }
 
-  AzureIoT_SetMessageReceivedCallback(&IoTHubMessageReceiveHandler);
   AzureIoT_SetDeviceTwinUpdateCallback(&DeviceTwinUpdateHandler);
-  AzureIoT_RegisterDirectMethodHandlers(&RebootDeviceMethodHandler);
   AzureIoT_SetConnectionStatusCallback(&IoTHubConnectionStatusUpdateHandler);
 }
 
@@ -235,6 +211,13 @@ static void InitPeripheralsAndHandlers(void)
   memset(&action, 0, sizeof(struct sigaction));
   action.sa_handler = TerminationHandler;
   sigaction(SIGTERM, &action, NULL);
+
+#ifdef MASTER_DEVICE
+  GroveShield_Initialize(&i2cFd, 230400);
+
+  GroveOledDisplay_Init(i2cFd, SH1107G);
+  clearDisplay();
+#endif
 
   OpenLeds(&leds);
 }
@@ -257,7 +240,7 @@ int main(int argc, char *argv[])
 
   DebugPrintCurrentlyConnectedWiFiNetwork();
 
-  while (!terminationRequested && rebootDeviceDelay <= 0)
+  while (!terminationRequested)
   {
     NetworkLedUpdateHandler();
     AzureIoTPeriodicHandler();
@@ -266,12 +249,6 @@ int main(int argc, char *argv[])
 
   CloseIotHub();
   ClosePeripheralsAndHandlers();
-
-  if (rebootDeviceDelay > 0)
-  {
-    Sleep((unsigned)(rebootDeviceDelay * 1000));
-    PowerManagement_ForceSystemReboot();
-  }
 
   return 0;
 }

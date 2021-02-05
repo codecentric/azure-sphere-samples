@@ -14,6 +14,10 @@
         "utils.h": "c",
         "template_appliance.h": "c",
         "azure_iot_utilities.h": "c",
-        "networking.h": "c"
+        "networking.h": "c",
+        "led.h": "c",
+        "parson.h": "c",
+        "groveoleddisplay96x96.h": "c",
+        "grove.h": "c"
     }
 }

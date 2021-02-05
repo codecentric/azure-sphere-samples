@@ -23,6 +23,7 @@ void OpenLeds(leds_t *leds);
 void CloseLeds(leds_t *leds);
 
 void SetLedState(led_channels_t channel, bool red, bool green, bool blue);
+void SetLedChannelFdState(int channelFd, bool state);
 
 bool GetLedRedState(led_channels_t channel);
 bool GetLedGreenState(led_channels_t channel);
