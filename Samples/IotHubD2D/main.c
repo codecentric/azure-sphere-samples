@@ -35,6 +35,8 @@ static leds_t leds;
 static bool networkReady = false;
 static bool connectedToIoTHub = false;
 
+static bool hasGroveShield = false;
+
 static const char *pstrConnectionStatus = "Application started";
 
 #ifdef MASTER_DEVICE
@@ -55,6 +57,19 @@ static void ReportConnectedDevices(int connectedDevices)
   {
     Log_Debug("[ReportLedStates] not connected to IoT Hub: no led states reported.\n");
   }
+}
+
+static void ShowDevicesOnScreen(int connectedDevices) {
+  clearDisplay();
+  setNormalDisplay();
+  setVerticalMode();
+
+  setTextXY(1, 0);
+  putString("Master Node");
+  
+  setTextXY(3, 0);
+  putString("Devices: ");
+  putNumber(connectedDevices);
 }
 #endif
 
@@ -124,19 +139,6 @@ static void IoTHubConnectionStatusUpdateHandler(bool connected, const char *stat
   }
 }
 
-static void ShowDevicesOnScreen(int connectedDevices) {
-  clearDisplay();
-  setNormalDisplay();
-  setVerticalMode();
-
-  setTextXY(1, 0);
-  putString("Master Node");
-  
-  setTextXY(3, 0);
-  putString("Devices: ");
-  putNumber(connectedDevices);
-}
-
 static void DeviceTwinUpdateHandler(JSON_Object *desiredProperties)
 {
   Log_Debug("[IoTHubDeviceTwinUpdateReceived]: %s\n");
@@ -155,7 +157,6 @@ static void DeviceTwinUpdateHandler(JSON_Object *desiredProperties)
   {
     int connectedDevices = (int) json_object_dotget_number(desiredProperties, "connectedDevices");
     ShowDevicesOnScreen(connectedDevices);
-
     ReportConnectedDevices(connectedDevices);
   }
 #endif
@@ -212,14 +213,13 @@ static void InitPeripheralsAndHandlers(void)
   action.sa_handler = TerminationHandler;
   sigaction(SIGTERM, &action, NULL);
 
-#ifdef MASTER_DEVICE
-  GroveShield_Initialize(&i2cFd, 230400);
-
-  GroveOledDisplay_Init(i2cFd, SH1107G);
-  clearDisplay();
-#endif
-
   OpenLeds(&leds);
+
+  hasGroveShield = GroveShield_Initialize(&i2cFd, 230400) == 0;
+  if (hasGroveShield) {
+    GroveOledDisplay_Init(i2cFd, SH1107G);
+    clearDisplay();
+  }
 }
 
 static void ClosePeripheralsAndHandlers(void)

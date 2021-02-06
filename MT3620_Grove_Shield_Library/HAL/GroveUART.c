@@ -25,7 +25,7 @@ bool GroveUART_Read(int fd, uint8_t* data, int dataSize)
 	do
 	{
 		int readSize = read(fd, &data[totalReadSize], (size_t)(dataSize - totalReadSize));
-		if (readSize < 0) return false;
+		if (readSize <= 0) return false;
 		totalReadSize += readSize;
 	} while (totalReadSize < dataSize);
 

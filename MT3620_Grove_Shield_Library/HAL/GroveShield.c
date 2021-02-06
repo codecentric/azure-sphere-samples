@@ -19,7 +19,7 @@ const uint8_t baudrate_19200_conf[4] = { 0x00, 0x70, 0x01, 0x01};
 const uint8_t baudrate_14400_conf[4] = { 0x00, 0xF4, 0x01, 0x01};
 const uint8_t baudrate_9600_conf[4] = { 0x00, 0xF0, 0x01, 0x02};
 
-static void baudrate_conf(int *fd, UART_BaudRate_Type baudrate)
+static int baudrate_conf(int *fd, UART_BaudRate_Type baudrate)
 {
 	static uint8_t trial = 0;
 	uint8_t d0, d1;
@@ -31,16 +31,14 @@ static void baudrate_conf(int *fd, UART_BaudRate_Type baudrate)
 	while (true)
 	{
 		d0 = 0, d1 = 0;
-		while (d0 != baudrate_9600_conf[1])
-		{
-			SC18IM700_ReadReg(*fd, 0x00, &d0);			
-		}
-		while (d1 != baudrate_9600_conf[3])
-		{
-			SC18IM700_ReadReg(*fd, 0x01, &d1);
-		}		
+		while (d0 != baudrate_9600_conf[1] && SC18IM700_ReadReg(*fd, 0x00, &d0)) {}
+		while (d1 != baudrate_9600_conf[3] && SC18IM700_ReadReg(*fd, 0x01, &d1)) {}		
 		//Log_Debug("BR1: %x %x\n", d0, d1);
-		if (d0 == baudrate_9600_conf[1] && d1 == baudrate_9600_conf[3]) break;
+		if (d0 == baudrate_9600_conf[1] && d1 == baudrate_9600_conf[3]) {
+			break;
+		} else {
+			return -1;
+		}
 		usleep(500000);
 	}
 
@@ -52,7 +50,7 @@ static void baudrate_conf(int *fd, UART_BaudRate_Type baudrate)
 	else if (baudrate == 9600) memcpy(conf, baudrate_9600_conf, 4);
 	else {
 		Log_Debug("[error] Baudrate not found.");
-		return;
+		return -1;
 	}
 	SC18IM700_WriteRegBytes(*fd, conf, 4);
 
@@ -67,14 +65,16 @@ static void baudrate_conf(int *fd, UART_BaudRate_Type baudrate)
 	if ((d0 != conf[1]) || (d1 != conf[3]))
 	{
 		trial++;
-		if (trial > 10) return;
+		if (trial > 10) return -1;
 		baudrate_conf(fd, baudrate);
 	}
 	trial = 0;
+
+	return 0;
 }
 
-void GroveShield_Initialize(int* fd, uint32_t baudrate)
+int GroveShield_Initialize(int* fd, uint32_t baudrate)
 {
 	/**fd = GroveUART_Open(MT3620_RDB_HEADER2_ISU0_UART, 9600);*/
-	baudrate_conf(fd, baudrate);
+	return baudrate_conf(fd, baudrate);
 }
