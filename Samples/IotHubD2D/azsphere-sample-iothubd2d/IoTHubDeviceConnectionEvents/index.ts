@@ -9,25 +9,31 @@ const eventGridTrigger: AzureFunction = async function (context: Context, eventG
 
     const devices = await registry.list().then(response => response.responseBody);
 
-    const connectedDevices = devices.reduce<number>((connected: number, current: DeviceIdentity) => connected + (current.connectionState == ('Connected' as any) ? 1 : 0), 0);
-    context.log(`Connected Devices: ${connectedDevices}`)
+    const connectedDevicesList = devices.filter(device => device.connectionState == ('Connected' as any));
+    const connectedTwinsList = await Promise.all(connectedDevicesList.map(device => registry.getTwin(device.deviceId)));
 
-    const twins = await Promise.all( devices.map(device => registry.getTwin(device.deviceId)))
+    const connectedDevices = connectedDevicesList.length;
+    const connectedNodeDevices = connectedTwinsList.reduce<number>((connected, current) => connected + (current.responseBody.properties.reported?.deviceCapabilities?.hasDisplay ? 0 : 1), 0);
+    const connectedMainDevices = connectedTwinsList.reduce<number>((connected, current) => connected + (current.responseBody.properties.reported?.deviceCapabilities?.hasDisplay ? 1 : 0), 0);
 
+    const twins = await Promise.all(devices.map(device => registry.getTwin(device.deviceId)))
+    
     twins.forEach(twin => {
         context.log(`Updating Desired State of Device ${twin.responseBody.deviceId}`)
-        twin.responseBody.update(desiredState(connectedDevices))
+        twin.responseBody.update(desiredState(connectedDevices, connectedNodeDevices, connectedMainDevices))
     });
 };
 
-function desiredState(connectedDevices: number): any {
+function desiredState(connectedDevices: number, connectedNodeDevices: number, connectedMainDevices: number): any {
     return {
         properties: {
             desired: {
-                connectedDevices: connectedDevices
+                connectedDevices,
+                connectedNodeDevices,
+                connectedMainDevices
             }
         }
     }
 }
-    
+
 export default eventGridTrigger;
