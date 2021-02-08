@@ -15,8 +15,6 @@
 #include <applibs/wificonfig.h>
 #include <applibs/powermanagement.h>
 
-#include "utils.h"
-
 #include "../../MT3620_Grove_Shield_Library/Grove.h"
 #include "../../MT3620_Grove_Shield_Library/Sensors/GroveOledDisplay96x96.h"
 
@@ -24,6 +22,9 @@
 #include "../../Library/azure_iot_utilities.h"
 #include "../../Library/led.h"
 #include "../../Library/sleep.h"
+
+#include "utils.h"
+#include "device_twin.h"
 
 static volatile sig_atomic_t terminationRequested = false;
 
@@ -37,87 +38,36 @@ static bool hasGroveShield = false;
 
 static const char *pstrConnectionStatus = "Application started";
 
-static void ReportConnectedDevices(int connectedDevices)
-{
-  if (connectedToIoTHub)
-  {
-    JSON_Value *root_value = json_value_init_object();
-    JSON_Object *root_object = json_value_get_object(root_value);
-
-    json_object_set_boolean(root_object, "connectedDevices", connectedDevices);
-
-    AzureIoT_TwinReportStateJson(root_value);
-
-    json_value_free(root_value);
-  }
-  else
-  {
-    Log_Debug("[ReportLedStates] not connected to IoT Hub: no led states reported.\n");
-  }
-}
-
-static void ShowDevicesOnScreen(int connectedDevices)
+static void ShowDevicesOnScreen(int connectedDevices, int connectedNodeDevices, int connectedMainDevices)
 {
   clearDisplay();
   setNormalDisplay();
   setVerticalMode();
 
   setTextXY(1, 0);
-  putString("Master Node");
+  putString("Main Node");
 
-  setTextXY(3, 0);
+  setTextXY(4, 0);
   putString("Devices: ");
   putNumber(connectedDevices);
-}
 
-static void ReportLedStates(void)
-{
-  if (connectedToIoTHub)
-  {
-    const led_channels_t ledChannels[] = {leds.one, leds.two, leds.three, leds.four, leds.wifi, leds.status};
-    const char *ledJsonKeys[] = {"one", "two", "three", "four", "wifi", "status"};
+  setTextXY(6, 0);
+  putString("Node Devices: ");
+  putNumber(connectedNodeDevices);
 
-    JSON_Value *root_value = json_value_init_object();
-    JSON_Object *root_object = json_value_get_object(root_value);
-
-    char jsonKeyBuffer[32];
-    for (uint8_t i = 0; i < sizeof(ledChannels) / sizeof(led_channels_t); i++)
-    {
-      snprintf(jsonKeyBuffer, sizeof(jsonKeyBuffer), "leds.%s.red", ledJsonKeys[i]);
-      json_object_dotset_boolean(root_object, jsonKeyBuffer, GetLedRedState(ledChannels[i]));
-
-      snprintf(jsonKeyBuffer, sizeof(jsonKeyBuffer), "leds.%s.green", ledJsonKeys[i]);
-      json_object_dotset_boolean(root_object, jsonKeyBuffer, GetLedGreenState(ledChannels[i]));
-
-      snprintf(jsonKeyBuffer, sizeof(jsonKeyBuffer), "leds.%s.blue", ledJsonKeys[i]);
-      json_object_dotset_boolean(root_object, jsonKeyBuffer, GetLedBlueState(ledChannels[i]));
-    }
-
-    AzureIoT_TwinReportStateJson(root_value);
-
-    json_value_free(root_value);
-  }
-  else
-  {
-    Log_Debug("[ReportLedStates] not connected to IoT Hub: no led states reported.\n");
-  }
+  setTextXY(8, 0);
+  putString("Main Devices: ");
+  putNumber(connectedMainDevices);
 }
 
 static void SendEventMessage(const char *cstrEvent, const char *cstrMessage)
 {
-  if (connectedToIoTHub)
-  {
-    JSON_Value *jsonRoot = json_value_init_object();
-    json_object_set_string(json_object(jsonRoot), cstrEvent, cstrMessage);
+  JSON_Value *jsonRoot = json_value_init_object();
+  json_object_set_string(json_object(jsonRoot), cstrEvent, cstrMessage);
 
-    AzureIoT_SendJsonMessage(jsonRoot);
+  AzureIoT_SendJsonMessage(jsonRoot);
 
-    json_value_free(jsonRoot);
-  }
-  else
-  {
-    Log_Debug("[SendEventMessage] not connected to IoT Hub: no event sent.\n");
-  }
+  json_value_free(jsonRoot);
 }
 
 static void IoTHubConnectionStatusUpdateHandler(bool connected, const char *statusText)
@@ -125,8 +75,10 @@ static void IoTHubConnectionStatusUpdateHandler(bool connected, const char *stat
   connectedToIoTHub = connected;
   if (connectedToIoTHub)
   {
-    Log_Debug("[IoTHubConnectionStatusChanged]: Connected.\n");
     SendEventMessage("connect", pstrConnectionStatus);
+    DeviceTwinReportCapabilities(hasGroveShield);
+
+    Log_Debug("[IoTHubConnectionStatusChanged]: Connected.\n");
     pstrConnectionStatus = "connect";
   }
   else
@@ -147,14 +99,32 @@ static void DeviceTwinUpdateHandler(JSON_Object *desiredProperties)
   SetLedIfExistsInJson(desiredProperties, leds.wifi, "wifi");
   SetLedIfExistsInJson(desiredProperties, leds.status, "status");
 
-  ReportLedStates();
+  DeviceTwinReportLedStates(&leds);
+
+  int connectedDevices = -1;
+  int connectedNodeDevices = -1;
+  int connectedMainDevices = -1;
 
   if (json_object_dotget_value(desiredProperties, "connectedDevices") && hasGroveShield)
   {
-    int connectedDevices = (int)json_object_dotget_number(desiredProperties, "connectedDevices");
-    ShowDevicesOnScreen(connectedDevices);
-    ReportConnectedDevices(connectedDevices);
+    connectedDevices = (int)json_object_dotget_number(desiredProperties, "connectedDevices");
   }
+
+  if (json_object_dotget_value(desiredProperties, "connectedNodeDevices") && hasGroveShield)
+  {
+    connectedNodeDevices = (int)json_object_dotget_number(desiredProperties, "connectedNodeDevices");
+  }
+
+  if (json_object_dotget_value(desiredProperties, "connectedMainDevices") && hasGroveShield)
+  {
+    connectedMainDevices = (int)json_object_dotget_number(desiredProperties, "connectedMainDevices");
+  }
+
+  if(hasGroveShield) {
+    ShowDevicesOnScreen(connectedDevices, connectedNodeDevices, connectedMainDevices);
+  }
+
+  DeviceTwinReportConnectedDevices(connectedDevices, connectedNodeDevices, connectedMainDevices);
 }
 
 static void AzureIoTPeriodicHandler(void)

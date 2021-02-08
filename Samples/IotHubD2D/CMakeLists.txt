@@ -12,7 +12,7 @@ add_subdirectory("../../MT3620_Grove_Shield_Library" groveOut)
 add_subdirectory("../../Library" out)
 
 # Create executable
-add_executable (${PROJECT_NAME} main.c utils.c)
+add_executable (${PROJECT_NAME} main.c utils.c device_twin.c)
 target_link_libraries (${PROJECT_NAME} applibs pthread gcc_s c azureiot MT3620_Grove_Shield_Library Library)
 azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "template_appliance.json")
 
