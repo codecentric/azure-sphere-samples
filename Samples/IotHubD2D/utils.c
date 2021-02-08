@@ -21,7 +21,7 @@ void DebugPrintCurrentlyConnectedWiFiNetwork(void)
     }
 }
 
-void showStartupScreen(void)
+void ShowStartupScreen(void)
 {
     clearDisplay();
     setTextXY(1, 0);
@@ -54,7 +54,7 @@ void showStartupScreen(void)
     {
         for (size_t i = 0; i < storedNetworkCount; i++)
         {
-            setTextXY((uint8_t)(4 + i), 2);
+            setTextXY((uint8_t)(4 + i), 0);
             putString(networks[i].ssid);
         }
     }

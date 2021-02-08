@@ -9,7 +9,7 @@
 
 void DebugPrintCurrentlyConnectedWiFiNetwork(void);
 
-void showStartupScreen(void);
+void ShowStartupScreen(void);
 
 bool GetBooleanValue(const JSON_Object *object, const char *name, const bool defaultValue);
 

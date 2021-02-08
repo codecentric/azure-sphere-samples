@@ -214,7 +214,7 @@ static void InitPeripheralsAndHandlers(void)
   if (hasGroveShield)
   {
     GroveOledDisplay_Init(i2cFd, SH1107G);
-    showStartupScreen();
+    ShowStartupScreen();
   }
 }
 
