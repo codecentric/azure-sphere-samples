@@ -39,12 +39,12 @@ void DeviceTwinReportConnectedDevices(int connectedDevices, int nodeDevices, int
         json_object_set_number(root_object, "connectedDevices", connectedDevices);
     }
 
-    if (connectedDevices > 0)
+    if (nodeDevices > 0)
     {
         json_object_set_number(root_object, "connectedNodeDevices", nodeDevices);
     }
-    
-    if (connectedDevices > 0)
+
+    if (mainDevices > 0)
     {
         json_object_set_number(root_object, "connectedMainDevices", mainDevices);
     }
