@@ -27,7 +27,7 @@ bool GroveUART_Read(int fd, uint8_t *data, int dataSize)
 
 	struct timeval timeout = {
 		.tv_sec = 0,
-		.tv_usec = 10000};
+		.tv_usec = 100000};
 
 	FD_ZERO(&set);
 	FD_SET((size_t) fd, &set);
