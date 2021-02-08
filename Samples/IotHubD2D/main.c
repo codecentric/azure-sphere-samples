@@ -25,8 +25,6 @@
 #include "../../Library/led.h"
 #include "../../Library/sleep.h"
 
-// #define MASTER_DEVICE
-
 static volatile sig_atomic_t terminationRequested = false;
 
 static int i2cFd;
@@ -39,7 +37,6 @@ static bool hasGroveShield = false;
 
 static const char *pstrConnectionStatus = "Application started";
 
-#ifdef MASTER_DEVICE
 static void ReportConnectedDevices(int connectedDevices)
 {
   if (connectedToIoTHub)
@@ -59,19 +56,19 @@ static void ReportConnectedDevices(int connectedDevices)
   }
 }
 
-static void ShowDevicesOnScreen(int connectedDevices) {
+static void ShowDevicesOnScreen(int connectedDevices)
+{
   clearDisplay();
   setNormalDisplay();
   setVerticalMode();
 
   setTextXY(1, 0);
   putString("Master Node");
-  
+
   setTextXY(3, 0);
   putString("Devices: ");
   putNumber(connectedDevices);
 }
-#endif
 
 static void ReportLedStates(void)
 {
@@ -152,14 +149,12 @@ static void DeviceTwinUpdateHandler(JSON_Object *desiredProperties)
 
   ReportLedStates();
 
-#ifdef MASTER_DEVICE
-  if(json_object_dotget_value(desiredProperties, "connectedDevices") && i2cFd >= 0) 
+  if (json_object_dotget_value(desiredProperties, "connectedDevices") && hasGroveShield)
   {
-    int connectedDevices = (int) json_object_dotget_number(desiredProperties, "connectedDevices");
+    int connectedDevices = (int)json_object_dotget_number(desiredProperties, "connectedDevices");
     ShowDevicesOnScreen(connectedDevices);
     ReportConnectedDevices(connectedDevices);
   }
-#endif
 }
 
 static void AzureIoTPeriodicHandler(void)
@@ -216,9 +211,10 @@ static void InitPeripheralsAndHandlers(void)
   OpenLeds(&leds);
 
   hasGroveShield = GroveShield_Initialize(&i2cFd, 230400) == 0;
-  if (hasGroveShield) {
+  if (hasGroveShield)
+  {
     GroveOledDisplay_Init(i2cFd, SH1107G);
-    clearDisplay();
+    showStartupScreen();
   }
 }
 
