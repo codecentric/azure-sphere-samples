@@ -6,34 +6,31 @@
 #include "../HAL/GroveI2C.h"
 #include "../Common/Delay.h"
 
+#define SHT31_ADDRESS (0x44 << 1)
 
-#define SHT31_ADDRESS		(0x44 << 1)
+#define POLYNOMIAL (0x31)
 
-#define POLYNOMIAL			(0x31)
-
-#define CMD_SOFT_RESET		(0x30a2)
-#define CMD_SINGLE_HIGH		(0x2400)
-#define CMD_HEATER_ENABLE	(0x306d)
-#define CMD_HEATER_DISABLE	(0x3066)
+#define CMD_SOFT_RESET (0x30a2)
+#define CMD_SINGLE_HIGH (0x2400)
+#define CMD_HEATER_ENABLE (0x306d)
+#define CMD_HEATER_DISABLE (0x3066)
 
 typedef struct
 {
 	int I2cFd;
 	float Temperature;
 	float Humidity;
-}
-GroveTempHumiSHT31Instance;
+} GroveTempHumiSHT31Instance;
 
-
-static void SendCommand(GroveTempHumiSHT31Instance* this, uint16_t cmd)
+static int SendCommand(GroveTempHumiSHT31Instance *this, uint16_t cmd)
 {
 	uint8_t writeData[2];
 	writeData[0] = (uint8_t)(cmd >> 8);
 	writeData[1] = (uint8_t)(cmd & 0xff);
-	GroveI2C_Write(this->I2cFd, SHT31_ADDRESS, writeData, sizeof(writeData));
+	return GroveI2C_Write(this->I2cFd, SHT31_ADDRESS, writeData, sizeof(writeData));
 }
 
-static uint8_t CalcCRC8(const uint8_t* data, int dataSize)
+static uint8_t CalcCRC8(const uint8_t *data, int dataSize)
 {
 	uint8_t crc = 0xff;
 
@@ -50,23 +47,27 @@ static uint8_t CalcCRC8(const uint8_t* data, int dataSize)
 	return crc;
 }
 
-void* GroveTempHumiSHT31_Open(int i2cFd)
+void *GroveTempHumiSHT31_Open(int i2cFd)
 {
-	GroveTempHumiSHT31Instance* this = (GroveTempHumiSHT31Instance*)malloc(sizeof(GroveTempHumiSHT31Instance));
+	GroveTempHumiSHT31Instance *this = (GroveTempHumiSHT31Instance *)malloc(sizeof(GroveTempHumiSHT31Instance));
 
 	this->I2cFd = i2cFd;
 	this->Temperature = NAN;
 	this->Humidity = NAN;
 
-	SendCommand(this, CMD_SOFT_RESET);
+	if (SendCommand(this, CMD_SOFT_RESET) < 0)
+	{
+		return NULL;
+	};
+	
 	usleep(1000);
 
 	return this;
 }
 
-void GroveTempHumiSHT31_Read(void* inst)
+void GroveTempHumiSHT31_Read(void *inst)
 {
-	GroveTempHumiSHT31Instance* this = (GroveTempHumiSHT31Instance*)inst;
+	GroveTempHumiSHT31Instance *this = (GroveTempHumiSHT31Instance *)inst;
 
 	this->Temperature = NAN;
 
@@ -74,10 +75,13 @@ void GroveTempHumiSHT31_Read(void* inst)
 	usleep(20000);
 
 	uint8_t readData[6];
-	if (!GroveI2C_Read(this->I2cFd, SHT31_ADDRESS, readData, sizeof(readData))) return;
+	if (!GroveI2C_Read(this->I2cFd, SHT31_ADDRESS, readData, sizeof(readData)))
+		return;
 
-	if (readData[2] != CalcCRC8(&readData[0], 2)) return;
-	if (readData[5] != CalcCRC8(&readData[3], 2)) return;
+	if (readData[2] != CalcCRC8(&readData[0], 2))
+		return;
+	if (readData[5] != CalcCRC8(&readData[3], 2))
+		return;
 
 	uint16_t ST;
 	ST = readData[0];
@@ -93,32 +97,32 @@ void GroveTempHumiSHT31_Read(void* inst)
 	this->Humidity = (float)SRH * 100 / 0xffff;
 }
 
-void GroveTempHumiSHT31_EnableHeater(void* inst)
+void GroveTempHumiSHT31_EnableHeater(void *inst)
 {
-	GroveTempHumiSHT31Instance* this = (GroveTempHumiSHT31Instance*)inst;
+	GroveTempHumiSHT31Instance *this = (GroveTempHumiSHT31Instance *)inst;
 
 	SendCommand(this, CMD_HEATER_ENABLE);
 	usleep(20000);
 }
 
-void GroveTempHumiSHT31_DisableHeater(void* inst)
+void GroveTempHumiSHT31_DisableHeater(void *inst)
 {
-	GroveTempHumiSHT31Instance* this = (GroveTempHumiSHT31Instance*)inst;
+	GroveTempHumiSHT31Instance *this = (GroveTempHumiSHT31Instance *)inst;
 
 	SendCommand(this, CMD_HEATER_DISABLE);
 	usleep(20000);
 }
 
-float GroveTempHumiSHT31_GetTemperature(void* inst)
+float GroveTempHumiSHT31_GetTemperature(void *inst)
 {
-	GroveTempHumiSHT31Instance* this = (GroveTempHumiSHT31Instance*)inst;
+	GroveTempHumiSHT31Instance *this = (GroveTempHumiSHT31Instance *)inst;
 
 	return this->Temperature;
 }
 
-float GroveTempHumiSHT31_GetHumidity(void* inst)
+float GroveTempHumiSHT31_GetHumidity(void *inst)
 {
-	GroveTempHumiSHT31Instance* this = (GroveTempHumiSHT31Instance*)inst;
+	GroveTempHumiSHT31Instance *this = (GroveTempHumiSHT31Instance *)inst;
 
 	return this->Humidity;
 }
