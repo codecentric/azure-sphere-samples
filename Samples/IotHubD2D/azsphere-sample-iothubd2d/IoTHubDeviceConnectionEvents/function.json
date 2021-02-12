@@ -1,9 +1,11 @@
 {
   "bindings": [
     {
-      "type": "eventGridTrigger",
-      "name": "eventGridEvent",
-      "direction": "in"
+      "type": "eventHubTrigger",
+      "name": "eventHubEvent",
+      "direction": "in",
+      "eventHubName": "azure-sphere-test",
+      "connection": "EVENT_HUB_CONNECTION_STRING"
     }
   ],
   "scriptFile": "../dist/IoTHubDeviceConnectionEvents/index.js"

@@ -4,7 +4,10 @@ import { DeviceIdentity } from "azure-iothub/dist/device";
 import { Device } from "azure-iothub/dist/pl/models";
 import { Devices } from "azure-iothub/dist/pl/operations";
 
-const eventGridTrigger: AzureFunction = async function (context: Context, eventGridEvent: any): Promise<void> {
+const trigger: AzureFunction = async function (context: Context, args: any[]): Promise<void> {
+    context.log(`Context.BindingData: ${JSON.stringify(context.bindingData)}`)
+    context.log(`Message: ${JSON.stringify(args[0])}`)
+
     const registry = Registry.fromConnectionString(process.env["IOT_HUB_CONNECTION_STRING"]);
 
     const devices = await registry.list().then(response => response.responseBody);
@@ -22,6 +25,8 @@ const eventGridTrigger: AzureFunction = async function (context: Context, eventG
         context.log(`Updating Desired State of Device ${twin.responseBody.deviceId}`)
         twin.responseBody.update(desiredState(connectedDevices, connectedNodeDevices, connectedMainDevices))
     });
+
+    context.done()
 };
 
 function desiredState(connectedDevices: number, connectedNodeDevices: number, connectedMainDevices: number): any {
@@ -36,4 +41,4 @@ function desiredState(connectedDevices: number, connectedNodeDevices: number, co
     }
 }
 
-export default eventGridTrigger;
+export default trigger;
