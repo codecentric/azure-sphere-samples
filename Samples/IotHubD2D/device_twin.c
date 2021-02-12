@@ -5,13 +5,14 @@
 #include "../../Library/parson.h"
 #include "../../Library/azure_iot_utilities.h"
 
-void DeviceTwinReportCapabilities(bool hasGroveShield, bool hasDisplay)
+void DeviceTwinReportCapabilities(bool hasGroveShield, bool hasDisplay, bool hasTempAndHumidity)
 {
     JSON_Value *root_value = json_value_init_object();
     JSON_Object *root_object = json_value_get_object(root_value);
 
     json_object_dotset_boolean(root_object, "deviceCapabilities.hasGroveShield", hasGroveShield);
     json_object_dotset_boolean(root_object, "deviceCapabilities.hasDisplay", hasDisplay);
+    json_object_dotset_boolean(root_object, "deviceCapabilities.hasTempAndHumidity", hasTempAndHumidity);
 
     AzureIoT_TwinReportStateJson(root_value);
 

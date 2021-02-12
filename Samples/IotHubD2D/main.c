@@ -16,6 +16,8 @@
 #include <applibs/powermanagement.h>
 
 #include "../../MT3620_Grove_Shield_Library/Grove.h"
+#include "../../MT3620_Grove_Shield_Library/Sensors/GroveRelay.h"
+#include "../../MT3620_Grove_Shield_Library/Sensors/GroveTempHumiSHT31.h"
 #include "../../MT3620_Grove_Shield_Library/Sensors/GroveOledDisplay96x96.h"
 
 #include "../../Library/parson.h"
@@ -30,12 +32,15 @@ static volatile sig_atomic_t terminationRequested = false;
 
 static int i2cFd;
 static leds_t leds;
+static void *buzzerInstance;
+static void *tempSensorInstance;
 
 static bool networkReady = false;
 static bool connectedToIoTHub = false;
 
 static bool hasGroveShield = false;
 static bool hasDisplay = false;
+static bool hasTemperatureAndHumidity = false;
 
 static const char *pstrConnectionStatus = "Application started";
 
@@ -77,7 +82,7 @@ static void IoTHubConnectionStatusUpdateHandler(bool connected, const char *stat
   if (connectedToIoTHub)
   {
     SendEventMessage("connect", pstrConnectionStatus);
-    DeviceTwinReportCapabilities(hasGroveShield, hasDisplay);
+    DeviceTwinReportCapabilities(hasGroveShield, hasDisplay, hasTemperatureAndHumidity);
 
     Log_Debug("[IoTHubConnectionStatusChanged]: Connected.\n");
     pstrConnectionStatus = "connect";
@@ -121,7 +126,8 @@ static void DeviceTwinUpdateHandler(JSON_Object *desiredProperties)
     connectedMainDevices = (int)json_object_dotget_number(desiredProperties, "connectedMainDevices");
   }
 
-  if(hasGroveShield) {
+  if (hasGroveShield)
+  {
     ShowDevicesOnScreen(connectedDevices, connectedNodeDevices, connectedMainDevices);
   }
 
@@ -185,8 +191,18 @@ static void InitPeripheralsAndHandlers(void)
   if (hasGroveShield)
   {
     hasDisplay = GroveOledDisplay_Init(i2cFd, SH1107G) == 0;
-    if (hasDisplay) {
+    if (hasDisplay)
+    {
       ShowStartupScreen();
+    }
+
+    buzzerInstance = GroveRelay_Open(TEMPLATE_VIBRATION_MOTOR);
+    GroveRelay_On(buzzerInstance);
+
+    tempSensorInstance = GroveTempHumiSHT31_Open(i2cFd);
+    if (tempSensorInstance != NULL)
+    {
+      hasTemperatureAndHumidity = true;
     }
   }
 }
