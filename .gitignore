@@ -1,6 +1,14 @@
-# Ignore output directories
-out/
+.DS_Store
+.ninja_deps
+.ninja_log
+*.imagepackage
+*.out
+approotIoTHubD2D
+build.ninja
+cmake_install.cmake
+groveOut
+rules.ninja
+build
+out
 CMakeCache.txt
-CMakeFiles/
-build/
-Samples/IotHub/.DS_Store
+CMakeFiles

@@ -1,0 +1,30 @@
+{
+	"folders": [
+		{
+			"uri": "vscode-remote://ssh-remote+localhost/home/vagrant/src/azure-sphere-samples/Samples/IotHubD2D"
+		},
+		{
+			"uri": "vscode-remote://ssh-remote+localhost/home/vagrant/src/azure-sphere-samples/Library"
+		},
+		{
+			"uri": "vscode-remote://ssh-remote+localhost/home/vagrant/src/azure-sphere-samples/MT3620_Grove_Shield_Library"
+		}
+	],
+	"remoteAuthority": "ssh-remote+localhost",
+	"settings": {
+		"files.associations": {
+			"**/ansible/**/*.yaml": "ansible",
+			"*.yaml": "azure-pipelines",
+			"powermanagement.h": "c",
+			"utils.h": "c",
+			"template_appliance.h": "c",
+			"azure_iot_utilities.h": "c",
+			"networking.h": "c",
+			"led.h": "c",
+			"parson.h": "c",
+			"groveoleddisplay96x96.h": "c",
+			"grove.h": "c",
+			"groveuart.h": "c"
+		}
+	}
+}

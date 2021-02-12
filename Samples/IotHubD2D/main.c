@@ -35,6 +35,7 @@ static bool networkReady = false;
 static bool connectedToIoTHub = false;
 
 static bool hasGroveShield = false;
+static bool hasDisplay = false;
 
 static const char *pstrConnectionStatus = "Application started";
 
@@ -76,7 +77,7 @@ static void IoTHubConnectionStatusUpdateHandler(bool connected, const char *stat
   if (connectedToIoTHub)
   {
     SendEventMessage("connect", pstrConnectionStatus);
-    DeviceTwinReportCapabilities(hasGroveShield);
+    DeviceTwinReportCapabilities(hasGroveShield, hasDisplay);
 
     Log_Debug("[IoTHubConnectionStatusChanged]: Connected.\n");
     pstrConnectionStatus = "connect";
@@ -183,8 +184,10 @@ static void InitPeripheralsAndHandlers(void)
   hasGroveShield = GroveShield_Initialize(&i2cFd, 230400) == 0;
   if (hasGroveShield)
   {
-    GroveOledDisplay_Init(i2cFd, SH1107G);
-    ShowStartupScreen();
+    hasDisplay = GroveOledDisplay_Init(i2cFd, SH1107G) == 0;
+    if (hasDisplay) {
+      ShowStartupScreen();
+    }
   }
 }
 

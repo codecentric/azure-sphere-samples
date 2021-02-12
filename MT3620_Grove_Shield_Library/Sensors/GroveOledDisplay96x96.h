@@ -6,10 +6,10 @@
 #include "../applibs_versions.h"
 #include <applibs/gpio.h>
 
-#define SH1107G  1
-#define SSD1327  2
+#define SH1107G 1
+#define SSD1327 2
 
-void GroveOledDisplay_Init(int i2cFd, uint8_t IC);
+int GroveOledDisplay_Init(int i2cFd, uint8_t IC);
 
 void setNormalDisplay(void);
 void setInverseDisplay(void);
